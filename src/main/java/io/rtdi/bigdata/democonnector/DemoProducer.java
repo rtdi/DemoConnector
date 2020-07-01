@@ -53,8 +53,8 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 		material = getSchemaHandler(DemoBrowse.material.getName());
 		customer = getSchemaHandler(DemoBrowse.customer.getName());
 		employee = getSchemaHandler(DemoBrowse.employee.getName());
-		sales = getPipelineAPI().getTopicOrCreate(this.getProducerProperties().getSalesTopic(), 1, 1);
-		hr = getPipelineAPI().getTopicOrCreate(this.getProducerProperties().getHRTopic(), 1, 1);
+		sales = getPipelineAPI().getTopicOrCreate(this.getProducerProperties().getSalesTopic(), 1, (short) 1);
+		hr = getPipelineAPI().getTopicOrCreate(this.getProducerProperties().getHRTopic(), 1, (short) 1);
 		addTopicSchema(sales, salesorder);
 		addTopicSchema(sales, material);
 		addTopicSchema(sales, customer);

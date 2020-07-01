@@ -2,9 +2,9 @@ package io.rtdi.bigdata.democonnector;
 
 import io.rtdi.bigdata.connector.connectorframework.JerseyApplication;
 
-public class JerseyApplicationDemoConnector extends JerseyApplication {
+public class JerseyApplicationSettings extends JerseyApplication {
 
-	public JerseyApplicationDemoConnector() {
+	public JerseyApplicationSettings() {
 		super();
 	}
 

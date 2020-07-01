@@ -109,7 +109,7 @@ public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 	}
 
 	@Override
-	protected void open() throws IOException {
+	public void open() throws IOException {
 	}
 
 	@Override
