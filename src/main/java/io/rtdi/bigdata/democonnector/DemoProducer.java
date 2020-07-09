@@ -43,8 +43,8 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 	@Override
 	public void startProducerCapture() throws IOException {
 		double d = getConnectionProperties().getRowsPerMinute();
-		pollinterval = (long) (60000.0 / d);
-		rows_per_poll = (getConnectionProperties().getRowsPerMinute() / 60000) + 1;
+		pollinterval = (long) (60.0 / d);
+		rows_per_poll = (getConnectionProperties().getRowsPerMinute() / 60) + 1;
 	}
 
 	@Override
@@ -99,123 +99,112 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 	}
 
 	@Override
-	public int poll(boolean aftersleep) throws IOException {
-		if (aftersleep) {
-			int rows = 0;
-			LocalDateTime today = LocalDateTime.now();
-			getProducerSession().beginTransaction(String.valueOf(System.currentTimeMillis()));
-			for (int counter=0; counter < rows_per_poll; counter++) {
-				int trigger = random.nextInt(100000);
-				int orderno = random.nextInt(100000);
-				String orderno_string = String.valueOf(orderno);
-				int customerno = orderno % companynames.length;
-				String customerno_string = String.valueOf(customerno);
-				int materialno1 = orderno % 67;
-				String materialno1_string = String.valueOf(materialno1);
-				int materialno2 = materialno1 + 1;
-				String materialno2_string = String.valueOf(materialno2);
-				
-				boolean newcustomer = !customers.contains(customerno_string);
-				if (newcustomer || trigger % 135 == 0) {
-					JexlRecord r = new JexlRecord(customer.getValueSchema());
-					r.put("CustomerNumber", customerno_string);
-					r.put("ChangeTimestamp", System.currentTimeMillis());
-					r.put("CompanyName", companynames[customerno]);
-					JexlRecord address = r.addChild("CompanyAddress");
-					address.put("City", "New York");
-					address.put("Country", "US");
-					address.put("Street", "2nd Street Building " + customerno_string);
-					RowType type;
-					if (newcustomer) {
-						type = RowType.UPSERT;
-					} else {
-						type = RowType.UPDATE;
-					}
-					this.getProducerSession().addRow(sales, null, customer, r, type, null, "DemoConnector");
-					rows++;
-					customers.add(customerno_string);
-				}
+	public void poll() throws IOException {
+		LocalDateTime today = LocalDateTime.now();
+		beginTransaction(String.valueOf(System.currentTimeMillis()));
+		for (int counter=0; counter < rows_per_poll; counter++) {
+			int trigger = random.nextInt(100000);
+			int orderno = random.nextInt(100000);
+			String orderno_string = String.valueOf(orderno);
+			int customerno = orderno % companynames.length;
+			String customerno_string = String.valueOf(customerno);
+			int materialno1 = orderno % 67;
+			String materialno1_string = String.valueOf(materialno1);
+			int materialno2 = materialno1 + 1;
+			String materialno2_string = String.valueOf(materialno2);
 			
-				boolean newmaterial = !materials.contains(materialno1_string);
-				if (newmaterial || trigger % 203 == 0) {
-					JexlRecord r = new JexlRecord(material.getValueSchema());
-					r.put("MaterialNumber", materialno1_string);
-					r.put("ChangeTimestamp", System.currentTimeMillis());
-					r.put("UoM", "pc");
-					r.put("Color", "black");
-					r.put("Size", "XL");
-					r.put("Type", "SI");
-					r.put("Group", "TEX");
-					JexlRecord text = r.addChild("MaterialName");
-					text.put("Language", "EN");
-					text.put("Name", "T-Shirt Type " + materialno1_string);
-					this.getProducerSession().addRow(sales, null, material, r, RowType.UPSERT, null, "DemoConnector");
-					rows++;
-					materials.add(materialno1_string);
-				}
-				if (!materials.contains(materialno2_string)) {
-					JexlRecord r = new JexlRecord(material.getValueSchema());
-					r.put("MaterialNumber", materialno2_string);
-					r.put("ChangeTimestamp", System.currentTimeMillis());
-					r.put("UoM", "pc");
-					r.put("Color", "grey");
-					r.put("Size", "L");
-					r.put("Type", "SI");
-					r.put("Group", "TEX");
-					JexlRecord text = r.addChild("MaterialName");
-					text.put("Language", "EN");
-					text.put("Name", "Jean " + materialno2_string);
-					this.getProducerSession().addRow(sales, null, material, r, RowType.UPSERT, null, "DemoConnector");
-					rows++;
-					materials.add(materialno1_string);
-				}
-				
-				if (trigger % 37 == 0) {
-					JexlRecord r = new JexlRecord(employee.getValueSchema());
-					r.put("EmployeeNumber", customerno_string);
-					r.put("ChangeTimestamp", System.currentTimeMillis());
-					r.put("Firstname", "Fritz");
-					r.put("Lastname", "Lang");
-					r.put("CurrentDepartment", "SALES");
-					r.put("CurrentPosition", "Sales Lead");
-					JexlRecord address = r.addChild("EmployeeAddress");
-					address.put("AddressType", "Home");
-					address.put("City", "New York");
-					address.put("Country", "US");
-					address.put("Street", "Main Street " + customerno_string);
-					this.getProducerSession().addRow(hr, null, employee, r, RowType.UPSERT, null, "DemoConnector");
-					rows++;
-				}
-		
-				
-				JexlRecord r = new JexlRecord(salesorder.getValueSchema());
-				r.put("OrderNumber", orderno_string);
+			boolean newcustomer = !customers.contains(customerno_string);
+			if (newcustomer || trigger % 135 == 0) {
+				JexlRecord r = new JexlRecord(customer.getValueSchema());
+				r.put("CustomerNumber", customerno_string);
 				r.put("ChangeTimestamp", System.currentTimeMillis());
-				r.put("OrderDate", today);
-				r.put("SoldTo", customerno_string);
-				r.put("ShipTo", customerno_string);
-				r.put("BillTo", customerno_string);
-				r.put("OrderStatus", "C");
-				JexlRecord item1 = r.addChild("SalesItems");
-				item1.put("OrderLine", 1);
-				item1.put("MaterialNumber", materialno1_string);
-				item1.put("Quantity", 4.0);
-				item1.put("UoM", "pc");
-				item1.put("Value", 100.45);
-				JexlRecord item2 = r.addChild("SalesItems");
-				item2.put("OrderLine", 2);
-				item2.put("MaterialNumber", materialno2_string);
-				item2.put("Quantity", 7.0);
-				item2.put("UoM", "pc");
-				item2.put("Value", 213.6);
-				this.getProducerSession().addRow(sales, null, salesorder, r, RowType.UPSERT, null, "DemoConnector");
-				rows++;
+				r.put("CompanyName", companynames[customerno]);
+				JexlRecord address = r.addChild("CompanyAddress");
+				address.put("City", "New York");
+				address.put("Country", "US");
+				address.put("Street", "2nd Street Building " + customerno_string);
+				RowType type;
+				if (newcustomer) {
+					type = RowType.UPSERT;
+				} else {
+					type = RowType.UPDATE;
+				}
+				addRow(sales, null, customer, r, type, null, "DemoConnector");
+				customers.add(customerno_string);
 			}
-			getProducerSession().commitTransaction();
-			return rows;
-		} else {
-			return 0;
+		
+			boolean newmaterial = !materials.contains(materialno1_string);
+			if (newmaterial || trigger % 203 == 0) {
+				JexlRecord r = new JexlRecord(material.getValueSchema());
+				r.put("MaterialNumber", materialno1_string);
+				r.put("ChangeTimestamp", System.currentTimeMillis());
+				r.put("UoM", "pc");
+				r.put("Color", "black");
+				r.put("Size", "XL");
+				r.put("Type", "SI");
+				r.put("Group", "TEX");
+				JexlRecord text = r.addChild("MaterialName");
+				text.put("Language", "EN");
+				text.put("Name", "T-Shirt Type " + materialno1_string);
+				addRow(sales, null, material, r, RowType.UPSERT, null, "DemoConnector");
+				materials.add(materialno1_string);
+			}
+			if (!materials.contains(materialno2_string)) {
+				JexlRecord r = new JexlRecord(material.getValueSchema());
+				r.put("MaterialNumber", materialno2_string);
+				r.put("ChangeTimestamp", System.currentTimeMillis());
+				r.put("UoM", "pc");
+				r.put("Color", "grey");
+				r.put("Size", "L");
+				r.put("Type", "SI");
+				r.put("Group", "TEX");
+				JexlRecord text = r.addChild("MaterialName");
+				text.put("Language", "EN");
+				text.put("Name", "Jean " + materialno2_string);
+				addRow(sales, null, material, r, RowType.UPSERT, null, "DemoConnector");
+				materials.add(materialno1_string);
+			}
+			
+			if (trigger % 37 == 0) {
+				JexlRecord r = new JexlRecord(employee.getValueSchema());
+				r.put("EmployeeNumber", customerno_string);
+				r.put("ChangeTimestamp", System.currentTimeMillis());
+				r.put("Firstname", "Fritz");
+				r.put("Lastname", "Lang");
+				r.put("CurrentDepartment", "SALES");
+				r.put("CurrentPosition", "Sales Lead");
+				JexlRecord address = r.addChild("EmployeeAddress");
+				address.put("AddressType", "Home");
+				address.put("City", "New York");
+				address.put("Country", "US");
+				address.put("Street", "Main Street " + customerno_string);
+				addRow(hr, null, employee, r, RowType.UPSERT, null, "DemoConnector");
+			}
+	
+			
+			JexlRecord r = new JexlRecord(salesorder.getValueSchema());
+			r.put("OrderNumber", orderno_string);
+			r.put("ChangeTimestamp", System.currentTimeMillis());
+			r.put("OrderDate", today);
+			r.put("SoldTo", customerno_string);
+			r.put("ShipTo", customerno_string);
+			r.put("BillTo", customerno_string);
+			r.put("OrderStatus", "C");
+			JexlRecord item1 = r.addChild("SalesItems");
+			item1.put("OrderLine", 1);
+			item1.put("MaterialNumber", materialno1_string);
+			item1.put("Quantity", 4.0);
+			item1.put("UoM", "pc");
+			item1.put("Value", 100.45);
+			JexlRecord item2 = r.addChild("SalesItems");
+			item2.put("OrderLine", 2);
+			item2.put("MaterialNumber", materialno2_string);
+			item2.put("Quantity", 7.0);
+			item2.put("UoM", "pc");
+			item2.put("Value", 213.6);
+			addRow(sales, null, salesorder, r, RowType.UPSERT, null, "DemoConnector");
 		}
+		commitTransaction();
 	}
 
 	
