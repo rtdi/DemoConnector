@@ -136,4 +136,8 @@ public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 		return null;
 	}
 
+	@Override
+	public void validate() throws IOException {
+	}
+
 }
