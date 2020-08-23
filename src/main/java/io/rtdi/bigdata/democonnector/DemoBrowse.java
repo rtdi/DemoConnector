@@ -140,4 +140,8 @@ public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 	public void validate() throws IOException {
 	}
 
+	@Override
+	public void deleteRemoteSchemaOrFail(String remotename) throws IOException {
+	}
+
 }

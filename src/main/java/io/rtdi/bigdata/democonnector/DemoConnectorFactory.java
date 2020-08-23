@@ -5,16 +5,16 @@ import java.io.IOException;
 import io.rtdi.bigdata.connector.connectorframework.BrowsingService;
 import io.rtdi.bigdata.connector.connectorframework.ConnectorFactory;
 import io.rtdi.bigdata.connector.connectorframework.Consumer;
+import io.rtdi.bigdata.connector.connectorframework.IConnectorFactoryConsumer;
+import io.rtdi.bigdata.connector.connectorframework.IConnectorFactoryProducer;
 import io.rtdi.bigdata.connector.connectorframework.Producer;
-import io.rtdi.bigdata.connector.connectorframework.Service;
 import io.rtdi.bigdata.connector.connectorframework.controller.ConnectionController;
 import io.rtdi.bigdata.connector.connectorframework.controller.ConsumerInstanceController;
 import io.rtdi.bigdata.connector.connectorframework.controller.ProducerInstanceController;
-import io.rtdi.bigdata.connector.connectorframework.controller.ServiceController;
 import io.rtdi.bigdata.connector.pipeline.foundation.exceptions.PropertiesException;
-import io.rtdi.bigdata.connector.properties.ServiceProperties;
 
-public class DemoConnectorFactory extends ConnectorFactory<DemoConnectionProperties, DemoProducerProperties, DemoConsumerProperties> {
+public class DemoConnectorFactory extends ConnectorFactory<DemoConnectionProperties>
+implements IConnectorFactoryProducer<DemoConnectionProperties, DemoProducerProperties>, IConnectorFactoryConsumer<DemoConnectionProperties, DemoConsumerProperties> {
 
 	public DemoConnectorFactory() {
 		super("DemoConnector");
@@ -48,36 +48,6 @@ public class DemoConnectorFactory extends ConnectorFactory<DemoConnectionPropert
 	@Override
 	public BrowsingService<DemoConnectionProperties> createBrowsingService(ConnectionController controller) throws IOException {
 		return new DemoBrowse(controller);
-	}
-
-	@Override
-	public Service createService(ServiceController instance) throws PropertiesException {
-		return null;
-	}
-
-	@Override
-	public ServiceProperties createServiceProperties(String servicename) throws PropertiesException {
-		return null;
-	}
-
-	@Override
-	public boolean supportsConnections() {
-		return true;
-	}
-
-	@Override
-	public boolean supportsServices() {
-		return false;
-	}
-
-	@Override
-	public boolean supportsProducers() {
-		return true;
-	}
-
-	@Override
-	public boolean supportsConsumers() {
-		return true;
 	}
 
 	@Override

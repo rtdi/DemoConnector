@@ -2,7 +2,9 @@ package io.rtdi.bigdata.democonnector;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -12,6 +14,7 @@ import io.rtdi.bigdata.connector.connectorframework.Producer;
 import io.rtdi.bigdata.connector.connectorframework.controller.ProducerInstanceController;
 import io.rtdi.bigdata.connector.pipeline.foundation.SchemaHandler;
 import io.rtdi.bigdata.connector.pipeline.foundation.TopicHandler;
+import io.rtdi.bigdata.connector.pipeline.foundation.TopicName;
 import io.rtdi.bigdata.connector.pipeline.foundation.avro.JexlGenericData.JexlRecord;
 import io.rtdi.bigdata.connector.pipeline.foundation.enums.RowType;
 import io.rtdi.bigdata.connector.pipeline.foundation.exceptions.PropertiesException;
@@ -49,25 +52,16 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 
 	@Override
 	public void createTopiclist() throws IOException {
-		salesorder = getSchemaHandler(DemoBrowse.salesorder.getName());
-		material = getSchemaHandler(DemoBrowse.material.getName());
-		customer = getSchemaHandler(DemoBrowse.customer.getName());
-		employee = getSchemaHandler(DemoBrowse.employee.getName());
-		sales = getPipelineAPI().getTopicOrCreate(this.getProducerProperties().getSalesTopic(), 1, (short) 1);
-		hr = getPipelineAPI().getTopicOrCreate(this.getProducerProperties().getHRTopic(), 1, (short) 1);
+		salesorder = getSchemaHandler(DemoBrowse.salesorder.getFullName());
+		material = getSchemaHandler(DemoBrowse.material.getFullName());
+		customer = getSchemaHandler(DemoBrowse.customer.getFullName());
+		employee = getSchemaHandler(DemoBrowse.employee.getFullName());
+		sales = getPipelineAPI().getTopicOrCreate(TopicName.create(this.getProducerProperties().getSalesTopic()), 1, (short) 1);
+		hr = getPipelineAPI().getTopicOrCreate(TopicName.create(this.getProducerProperties().getHRTopic()), 1, (short) 1);
 		addTopicSchema(sales, salesorder);
 		addTopicSchema(sales, material);
 		addTopicSchema(sales, customer);
 		addTopicSchema(hr, employee);
-	}
-
-	@Override
-	public String getLastSuccessfulSourceTransaction() throws IOException {
-		return null;
-	}
-
-	@Override
-	public void initialLoad() throws IOException {
 	}
 
 	@Override
@@ -99,9 +93,10 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 	}
 
 	@Override
-	public void poll() throws IOException {
+	public String poll(String from_transactionid) throws IOException {
 		LocalDateTime today = LocalDateTime.now();
-		beginTransaction(String.valueOf(System.currentTimeMillis()));
+		String transactionid = String.valueOf(System.currentTimeMillis());
+		beginDeltaTransaction(transactionid, this.getProducerInstance().getInstanceNumber());
 		for (int counter=0; counter < rows_per_poll; counter++) {
 			int trigger = random.nextInt(100000);
 			int orderno = random.nextInt(100000);
@@ -204,7 +199,8 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 			item2.put("Value", 213.6);
 			addRow(sales, null, salesorder, r, RowType.UPSERT, null, "DemoConnector");
 		}
-		commitTransaction();
+		commitDeltaTransaction();
+		return transactionid;
 	}
 
 	
@@ -738,5 +734,25 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 			"Zoner",
 			"Zurich Insurance (Risk Room)"
 };
+
+	@Override
+	public List<String> getAllSchemas() {
+		List<String> l = new ArrayList<>();
+		l.add(salesorder.getSchemaName().getName());
+		l.add(material.getSchemaName().getName());
+		l.add(customer.getSchemaName().getName());
+		l.add(employee.getSchemaName().getName());
+		return l;
+	}
+
+	@Override
+	public long executeInitialLoad(String schemaname, String transactionid) throws IOException {
+		return 0;
+	}
+
+	@Override
+	public String getCurrentTransactionId() throws IOException {
+		return String.valueOf(System.currentTimeMillis());
+	}
 	
 }
