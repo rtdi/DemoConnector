@@ -42,7 +42,7 @@ public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 		try {
 			salesorder = new ValueSchema(SALES_ORDER, "Business Object for Sales Order");
 			salesorder.add("OrderNumber", AvroVarchar.getSchema(10), "The sales order number", false).setPrimaryKey();
-			salesorder.add("ChangeTimestamp", AvroTimestamp.getSchema(), "The timestamp (Unix epoch format) the order was changed", false).setPrimaryKey();
+			salesorder.add("ChangeTimestamp", AvroTimestamp.getSchema(), "The timestamp (Unix epoch format) the order was changed", false);
 			salesorder.add("OrderDate", AvroDate.getSchema(), "The date the order was created", false);
 			salesorder.add("SoldTo", AvroVarchar.getSchema(10), "The sold-to party", false);
 			salesorder.add("ShipTo", AvroVarchar.getSchema(10), "The ship-to party", false);
@@ -58,7 +58,7 @@ public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 			
 			material = new ValueSchema(MATERIAL, "Masterdata about Materials");
 			material.add("MaterialNumber", AvroVarchar.getSchema(20), "Material Number", false).setPrimaryKey();
-			material.add("ChangeTimestamp", AvroTimestamp.getSchema(), "The timestamp (Unix epoch format) the record was changed", false).setPrimaryKey();
+			material.add("ChangeTimestamp", AvroTimestamp.getSchema(), "The timestamp (Unix epoch format) the record was changed", false);
 			material.add("UoM", AvroVarchar.getSchema(3), "Unit of Measure", false);
 			material.add("Color", AvroVarchar.getSchema(9), "Color", false);
 			material.add("Size", AvroVarchar.getSchema(10), "Size", false);
@@ -72,7 +72,7 @@ public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 			
 			customer = new ValueSchema(CUSTOMER, "Masterdata about Customers");
 			customer.add("CustomerNumber", AvroVarchar.getSchema(10), "Material Number", false).setPrimaryKey();
-			customer.add("ChangeTimestamp", AvroTimestamp.getSchema(), "The timestamp (Unix epoch format) the record was changed", false).setPrimaryKey();
+			customer.add("ChangeTimestamp", AvroTimestamp.getSchema(), "The timestamp (Unix epoch format) the record was changed", false);
 			customer.add("CompanyName", AvroNVarchar.getSchema(40), "Company name", true);
 
 			AvroRecordArray address = customer.addColumnRecordArray("CompanyAddress", "Company address", "CompanyAddress", "Company address");
@@ -84,7 +84,7 @@ public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 
 			employee = new ValueSchema(EMPLOYEE, "Masterdata about Employees");
 			employee.add("EmployeeNumber", AvroVarchar.getSchema(10), "Employee Number", false).setPrimaryKey();
-			employee.add("ChangeTimestamp", AvroTimestamp.getSchema(), "The timestamp (Unix epoch format) the record was changed", false).setPrimaryKey();
+			employee.add("ChangeTimestamp", AvroTimestamp.getSchema(), "The timestamp (Unix epoch format) the record was changed", false);
 			employee.add("Firstname", AvroNVarchar.getSchema(40), "Firstname", true);
 			employee.add("Lastname", AvroNVarchar.getSchema(40), "Lastname", true);
 			employee.add("Title", AvroNVarchar.getSchema(20), "Title", true);
