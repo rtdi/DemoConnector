@@ -747,6 +747,8 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 
 	@Override
 	public long executeInitialLoad(String schemaname, String transactionid) throws IOException {
+		beginInitialLoadTransaction(transactionid, schemaname, 0);
+		commitInitialLoadTransaction(0);
 		return 0;
 	}
 
