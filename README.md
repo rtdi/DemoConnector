@@ -1,8 +1,9 @@
-# RTDI Big Data DemoConnector 
+# DemoConnector 
 
 _Every minute create a new dataset simulating an ERP source connector_
 
 Source code available here: [github](https://github.com/rtdi/RTDIDemoConnector)
+Docker image here: [docherhub](https://hub.docker.com/r/rtdi/democonnector)
 
 
 ## Installation and testing
@@ -33,7 +34,7 @@ For proper start commands, especially https and security related, see the [Conne
 
 The first step is to connect the application to a Kafka server, in this example Confluent Cloud.
 
-<img src="https://github.com/rtdi/RTDIDemoConnector/raw/master/docs/media/DemoConnector-PipelineConfig.png" width="50%">
+<img src="https://github.com/rtdi/DemoConnector/raw/master/docs/media/DemoConnector-PipelineConfig.png" width="50%">
 
 
 ### Define a Connection
@@ -45,10 +46,14 @@ A Connection represents a dataset.
 
 A Producer stands for the process creating the data.
 
+<img src="https://github.com/rtdi/DemoConnector/raw/master/docs/media/DemoConnector-Producer.png" width="50%">
+
 
 ### Data content
 
+The producer creates data for Material, Sales Orders and Employees in the Topics called SALES and HR. Example of a SALES record:
 
+<img src="https://github.com/rtdi/DemoConnector/raw/master/docs/media/DemoConnector-Data.png" width="50%">
 
 
 ## Licensing
