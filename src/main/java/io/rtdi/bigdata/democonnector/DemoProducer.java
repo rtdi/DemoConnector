@@ -93,9 +93,11 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 	}
 
 	@Override
-	public String poll(String from_transactionid) throws IOException {
+	public String poll(String from_transactionid) throws IOException {	
 		LocalDateTime today = LocalDateTime.now();
 		String transactionid = String.valueOf(System.currentTimeMillis());
+		addOperationLogLine("Starting transaction");
+		int rowcount = 0;
 		beginDeltaTransaction(transactionid, this.getProducerInstance().getInstanceNumber());
 		for (int counter=0; counter < rows_per_poll; counter++) {
 			int trigger = random.nextInt(100000);
@@ -126,6 +128,7 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 				}
 				addRow(sales, null, customer, r, type, null, "DemoConnector");
 				customers.add(customerno_string);
+				rowcount++;
 			}
 		
 			boolean newmaterial = !materials.contains(materialno1_string);
@@ -143,6 +146,7 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 				text.put("Name", "T-Shirt Type " + materialno1_string);
 				addRow(sales, null, material, r, RowType.UPSERT, null, "DemoConnector");
 				materials.add(materialno1_string);
+				rowcount++;
 			}
 			if (!materials.contains(materialno2_string)) {
 				JexlRecord r = new JexlRecord(material.getValueSchema());
@@ -158,6 +162,7 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 				text.put("Name", "Jean " + materialno2_string);
 				addRow(sales, null, material, r, RowType.UPSERT, null, "DemoConnector");
 				materials.add(materialno1_string);
+				rowcount++;
 			}
 			
 			if (trigger % 37 == 0) {
@@ -174,6 +179,7 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 				address.put("Country", "US");
 				address.put("Street", "Main Street " + customerno_string);
 				addRow(hr, null, employee, r, RowType.UPSERT, null, "DemoConnector");
+				rowcount++;
 			}
 	
 			
@@ -198,8 +204,12 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 			item2.put("UoM", "pc");
 			item2.put("Value", 213.6);
 			addRow(sales, null, salesorder, r, RowType.UPSERT, null, "DemoConnector");
+			rowcount++;
+			
+			addOperationLogLine("Created " + rowcount + " change rows");
 		}
 		commitDeltaTransaction();
+		addOperationLogLine("Committed");
 		return transactionid;
 	}
 
@@ -748,7 +758,8 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 	@Override
 	public long executeInitialLoad(String schemaname, String transactionid) throws IOException {
 		beginInitialLoadTransaction(transactionid, schemaname, 0);
-		commitInitialLoadTransaction(0);
+		commitInitialLoadTransaction();
+		addOperationLogLine("Completed initialLoad for schema " + schemaname);
 		return 0;
 	}
 
