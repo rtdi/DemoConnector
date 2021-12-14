@@ -5,20 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilderException;
 
 import io.rtdi.bigdata.connector.connectorframework.BrowsingService;
 import io.rtdi.bigdata.connector.connectorframework.controller.ConnectionController;
 import io.rtdi.bigdata.connector.connectorframework.entity.TableEntry;
-import io.rtdi.bigdata.connector.pipeline.foundation.avrodatatypes.AvroDate;
-import io.rtdi.bigdata.connector.pipeline.foundation.avrodatatypes.AvroDecimal;
-import io.rtdi.bigdata.connector.pipeline.foundation.avrodatatypes.AvroInt;
-import io.rtdi.bigdata.connector.pipeline.foundation.avrodatatypes.AvroNVarchar;
-import io.rtdi.bigdata.connector.pipeline.foundation.avrodatatypes.AvroTimestamp;
-import io.rtdi.bigdata.connector.pipeline.foundation.avrodatatypes.AvroVarchar;
+import io.rtdi.bigdata.kafka.avro.datatypes.*;
+import io.rtdi.bigdata.kafka.avro.recordbuilders.AvroRecordArray;
+import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 import io.rtdi.bigdata.connector.pipeline.foundation.enums.TableType;
-import io.rtdi.bigdata.connector.pipeline.foundation.exceptions.SchemaException;
-import io.rtdi.bigdata.connector.pipeline.foundation.recordbuilders.AvroRecordArray;
-import io.rtdi.bigdata.connector.pipeline.foundation.recordbuilders.ValueSchema;
 
 public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 	public static final String EMPLOYEE = "Employee";
@@ -99,7 +94,7 @@ public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 			employeeaddress.add("PostCode", AvroVarchar.getSchema(10), "PostCode", true);
 			employee.build();
 
-		} catch (SchemaException e) {
+		} catch (SchemaBuilderException e) {
 			e.printStackTrace();
 		}
 	}
@@ -130,7 +125,7 @@ public class DemoBrowse extends BrowsingService<DemoConnectionProperties> {
 			case CUSTOMER: return customer.getSchema();
 			case EMPLOYEE: return employee.getSchema();
 			}
-		} catch (SchemaException e) {
+		} catch (SchemaBuilderException e) {
 			e.printStackTrace();
 		}
 		return null;

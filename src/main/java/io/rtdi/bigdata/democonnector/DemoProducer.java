@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilderException;
 
 import io.rtdi.bigdata.connector.connectorframework.Producer;
 import io.rtdi.bigdata.connector.connectorframework.controller.ProducerInstanceController;
@@ -16,9 +17,8 @@ import io.rtdi.bigdata.connector.pipeline.foundation.SchemaHandler;
 import io.rtdi.bigdata.connector.pipeline.foundation.TopicHandler;
 import io.rtdi.bigdata.connector.pipeline.foundation.TopicName;
 import io.rtdi.bigdata.connector.pipeline.foundation.avro.JexlGenericData.JexlRecord;
-import io.rtdi.bigdata.connector.pipeline.foundation.enums.RowType;
 import io.rtdi.bigdata.connector.pipeline.foundation.exceptions.PropertiesException;
-import io.rtdi.bigdata.connector.pipeline.foundation.exceptions.SchemaException;
+import io.rtdi.bigdata.kafka.avro.RowType;
 
 public class DemoProducer extends Producer<DemoConnectionProperties, DemoProducerProperties> {
 
@@ -78,7 +78,7 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 	}
 
 	@Override
-	protected Schema createSchema(String sourceschemaname) throws SchemaException, IOException {
+	protected Schema createSchema(String sourceschemaname) throws SchemaBuilderException, IOException {
 		try {
 			switch (sourceschemaname) {
 			case DemoBrowse.SALES_ORDER: return DemoBrowse.salesorder.getSchema();
@@ -86,7 +86,7 @@ public class DemoProducer extends Producer<DemoConnectionProperties, DemoProduce
 			case DemoBrowse.CUSTOMER: return DemoBrowse.customer.getSchema();
 			case DemoBrowse.EMPLOYEE: return DemoBrowse.employee.getSchema();
 			}
-		} catch (SchemaException e) {
+		} catch (SchemaBuilderException e) {
 			e.printStackTrace();
 		}
 		return null;
